@@ -1,34 +1,51 @@
+// a valid name should contain only letters in the alphabet
+function checkName(name) {
+    const regex = /^[a-zA-Z ]+$/;
+
+    if (regex.test(name)) {
+        return true;
+    } else {
+        console.log("Invalid value: " + name + ", for name");
+        return false;
+    }
+}
+
+// a valid email should only contain letters and numbers before '.' and only letters after '.'
 function checkEmail(email) {
-    // check valid email with regex
-    const regex = new RegExp("[A-Z0-9a-z.]+@[A-Za-z0-9]+.[A-Za-z]{2,64}");
+    const regex = /^[A-Z0-9a-z.]+@[A-Za-z0-9]+.[A-Za-z]{2,64}/;
 
     if (regex.test(email)) {
         return true;
     } else {
+        console.log("Invalid value: " + email + ", for email");
         return false;
     }
 }
 
+// a valid source control tool should only be one of the options specified in the task
 function checkSourceControl(sourceControl) {
-    if (
-        sourceControl == "Github" ||
-        sourceControl == "Gitlab" ||
-        sourceControl == "BitBucket" ||
-        sourceControl == "TFS" ||
-        sourceControl == "Other"
-    ) {
+    // convert input string to lowercase so it can be matched with variables in set
+    const tool = sourceControl.toLowerCase();
+    const tools = new Set(["github", "gitlab", "bitbucket", "tfs", "other"]);
+
+    if (tools.has(tool)) {
         return true;
     } else {
+        console.log("Invalid value: " + tool + ", for source control tool");
         return false;
     }
 }
 
+// a valid number of people should be a positive non-decimal number
 function checkPeople(numPeople) {
-    if (Number.isInteger(numPeople) && numPeople >= 0) {
+    const regex = /^[1-9]+[0-9]*$/;
+
+    if (regex.test(numPeople)) {
         return true;
     } else {
+        console.log("Invalid value: " + numPeople + ", for number of people");
         return false;
     }
 }
 
-module.exports = { checkEmail, checkSourceControl, checkPeople };
+module.exports = { checkName, checkEmail, checkSourceControl, checkPeople };

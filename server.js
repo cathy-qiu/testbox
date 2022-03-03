@@ -1,7 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const Customer = require("./database");
-const { checkEmail, checkSourceControl, checkPeople } = require("./validate");
+const {
+    checkName,
+    checkEmail,
+    checkSourceControl,
+    checkPeople,
+} = require("./validate");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -13,10 +18,12 @@ app.get("/", (req, res) => {
         });
     }
 
+    res.send({ type: "GET" });
+
     res.json({ message: "Welcome to CodeBox!" });
 });
 
-app.get("/users", function (req, res) {
+app.get("/users", (req, res) => {
     if (req.method !== "GET") {
         return res.status(401).json({
             message: "Not allowed",
@@ -26,34 +33,33 @@ app.get("/users", function (req, res) {
     res.send({ type: "GET" });
 });
 
-app.post("/users", async function (req, res) {
-    if (
-        !req.body.name ||
-        !req.body.email ||
-        !req.body.sourceControl ||
-        !req.body.numPeople
-    ) {
+app.post("/users", async (req, res) => {
+    const data = req.body;
+
+    // checks for missing inputs
+    if (!data.name || !data.email || !data.sourceControl || !data.numPeople) {
         return res.status(400).json({
             status_code: 0,
             error_msg: "Missing required parameters",
         });
     }
 
-    const data = req.body;
-
-    // check for valid input
+    // check for valid inputs
     if (
-        checkEmail(req.body.email) &&
-        checkSourceControl(req.body.sourceControl) &&
-        checkPeople(req.body.numPeople)
+        checkName(data.name) &&
+        checkEmail(data.email) &&
+        checkSourceControl(data.sourceControl) &&
+        checkPeople(data.numPeople)
     ) {
-        // store user data into database
-        await Customer.doc(req.body.email)
+        // store user data into database with customer email as document ID
+        await Customer.doc(data.email)
             .set(data)
-            .then(function () {
+            .then(() => {
                 console.log("Document successfully written!");
+
+                // sendEmail() - thank customer for their interest
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.error("Error writing document: ", error);
             });
     } else {
@@ -62,16 +68,16 @@ app.post("/users", async function (req, res) {
 
     res.send({
         type: "POST",
-        name: req.body.name,
-        email: req.body.email,
-        sourceControl: req.body.sourceControl,
-        numPeople: req.body.numPeople,
+        name: data.name,
+        email: data.email,
+        sourceControl: data.sourceControl,
+        numPeople: data.numPeople,
     });
 
     console.log(data);
 });
 
 // listen for requests
-app.listen(process.env.port || 4000, function () {
+app.listen(process.env.PORT || 4000, () => {
     console.log("Ready to Go!");
 });
